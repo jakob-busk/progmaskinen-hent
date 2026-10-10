@@ -59,7 +59,11 @@ async function listeMed(version) {
 
 // ---------- kørsel af programmer ----------
 
-/** Kører et program asynkront (den lokale server skal kunne svare imens). Returnerer { kode, ud }. */
+/**
+ * Kører et program asynkront (den lokale server skal kunne svare imens). Returnerer { kode, ud }.
+ * Færdig, når programmet slutter ('exit', ikke 'close'): på Windows arver onboarding-serveren, som installeren starter
+ * i baggrunden, installerens stdout, så røret lukker først, når serveren gør.
+ */
 function koer(kommando, args, valg = {}) {
   return new Promise((ok) => {
     const barn = spawn(kommando, args, { stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true, ...valg });
@@ -67,7 +71,13 @@ function koer(kommando, args, valg = {}) {
     barn.stdout.on('data', (d) => ((ud += d), process.stdout.write(d)));
     barn.stderr.on('data', (d) => ((ud += d), process.stderr.write(d)));
     barn.on('error', (f) => ok({ kode: -1, ud: `${ud}\n${f.message}` }));
-    barn.on('close', (kode) => ok({ kode, ud }));
+    barn.on('exit', (kode) =>
+      setTimeout(() => {
+        barn.stdout.destroy();
+        barn.stderr.destroy();
+        ok({ kode, ud });
+      }, 500),
+    );
   });
 }
 

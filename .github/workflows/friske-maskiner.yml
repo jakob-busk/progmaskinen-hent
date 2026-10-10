@@ -1,0 +1,56 @@
+# Testen på friske maskiner. Startes af udgivelsesscriptet (vaerksted/udgiv.mjs i værkstedet), når en ny version ligger
+# som skjult forhåndsudgivelse. Grøn: versionen gøres til latest. Rød: den forbliver skjult.
+# Bruger kun dette offentlige repo: installeren herfra og den udgivne zip. Ingen secrets.
+name: Friske maskiner
+run-name: Friske maskiner ${{ inputs.version }} (${{ inputs.id }})
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Versionen, der testes (den skjulte forhåndsudgivelse), fx 1.0.1
+        required: true
+      forrige:
+        description: Versionen, opdateringen testes fra (tom = ingen)
+        required: false
+        default: ''
+      id:
+        description: Kørslens id (sættes af udgivelsesscriptet, så det kan finde kørslen)
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  frisk:
+    name: Frisk maskine (${{ matrix.navn }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            navn: Windows
+          - os: macos-latest
+            navn: Mac
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    env:
+      VERSION: ${{ inputs.version }}
+      FORRIGE: ${{ inputs.forrige }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - name: Installér med guidens kommando (Windows - npx.cmd i PowerShell med standard-ExecutionPolicy)
+        run: node .github/friske-maskiner.mjs installer
+      - name: Installationen er komplet (manifest, skills, ingen ekstra mappe, ASCII-mappenavne)
+        run: node .github/friske-maskiner.mjs installation
+      - name: Onboarding uden browser
+        run: node .github/friske-maskiner.mjs onboarding
+      - name: Tjek en Øvelse
+        run: node .github/friske-maskiner.mjs ovelse
+      - name: Opdatér den forrige version - elev/ og egne filer er uændrede (sha256)
+        run: node .github/friske-maskiner.mjs opdatering

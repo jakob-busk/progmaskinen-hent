@@ -1,6 +1,6 @@
 {
   "name": "progmaskinen",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0",
   "description": "Henter og installerer Progmaskinen, træning til programmeringseksamen på HA(it.) 1. semester.",
   "type": "module",
   "bin": {

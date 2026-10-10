@@ -24,7 +24,13 @@ Virker den ikke, kan du bruge denne i stedet:
 npx github:jakob-busk/progmaskinen-hent
 ```
 
-Den kræver, at git er installeret. Eller hent zip-filen under [Releases](https://github.com/jakob-busk/progmaskinen-hent/releases) og pak den ud i Dokumenter.
+Den kræver, at git er installeret (uden git fejler den med "spawn git ENOENT"). Har du ikke git, så brug denne adresse, som ikke kræver git:
+
+```
+npx https://github.com/jakob-busk/progmaskinen-hent/tarball/main
+```
+
+Eller hent zip-filen under [Releases](https://github.com/jakob-busk/progmaskinen-hent/releases) og pak den ud i Dokumenter.
 
 ## Har du den allerede?
 

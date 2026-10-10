@@ -1,0 +1,27 @@
+{
+  "name": "progmaskinen",
+  "version": "1.0.0-beta.1",
+  "description": "Henter og installerer Progmaskinen, træning til programmeringseksamen på HA(it.) 1. semester.",
+  "type": "module",
+  "bin": {
+    "progmaskinen": "bin/progmaskinen.mjs"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20.11"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jakob-busk/progmaskinen-hent.git"
+  },
+  "homepage": "https://github.com/jakob-busk/progmaskinen-hent#readme",
+  "license": "SEE LICENSE IN LICENSE",
+  "publishConfig": {
+    "access": "public"
+  }
+}

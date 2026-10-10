@@ -71,7 +71,8 @@ function koer(kommando, args, valg = {}) {
   });
 }
 
-const npm = (args, cwd) => koer(WIN ? 'npm.cmd' : 'npm', args, { cwd, shell: WIN });
+// På Windows er npm en .cmd-fil, der kræver en shell; kommandoen samles selv (stierne citeres), så intet sendes usikkert videre.
+const npm = (args, cwd) => (WIN ? koer(['npm.cmd', ...args.map((a) => `"${a}"`)].join(' '), [], { cwd, shell: true }) : koer('npm', args, { cwd }));
 const node = (mappe, script, args = [], env = {}) => koer(process.execPath, [join('scripts', script), ...args], { cwd: mappe, env: { ...process.env, ...env } });
 
 /** Fælles miljø for installer og opdatering: ingen browser, og forhåndsudgivelser tæller (versionen er skjult under testen). */
@@ -146,7 +147,9 @@ async function installer() {
   try {
     if (WIN) {
       // Guidens kommando i Windows PowerShell med Windows' standard-ExecutionPolicy (Restricted), som spærrer npm's .ps1-filer.
-      const ps = (kommando) => koer('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Restricted', '-Command', kommando], { cwd: kaldested, env: miljoe(liste.url, pidfil) });
+      // PSModulePath fra runnerens PowerShell 7 fjernes, så Windows PowerShell 5.1 starter som i VS Code's terminal.
+      const env = Object.fromEntries(Object.entries(miljoe(liste.url, pidfil)).filter(([k]) => k.toLowerCase() !== 'psmodulepath'));
+      const ps = (kommando) => koer('powershell.exe', ['-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Restricted', '-Command', kommando], { cwd: kaldested, env });
       const politik = await ps('Get-ExecutionPolicy');
       sikr(politik.ud.trim() === 'Restricted', `ExecutionPolicy er "${politik.ud.trim()}", ikke Restricted.`);
       const npx = await ps('(Get-Command npx).Source');
